@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffce3d">
+  <title>Burger Blast | Our Mom's Restaurant</title>
+  <style>
+    :root {
+      --bun: #ffce3d;
+      --ketchup: #ef3e36;
+      --lettuce: #35b769;
+      --ink: #2b2018;
+      --paper: #fff8e8;
+      --line: #f2b233;
+      --sky: #69c7f2;
+      --counter: #8fd36a;
+      --shadow: rgba(74, 38, 14, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-rounded, "Trebuchet MS", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .game-shell {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: min(100vw, 520px);
+      height: 100dvh;
+      min-height: 560px;
+      max-height: 960px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.66) 0%, rgba(255,248,232,0.88) 100%),
+        repeating-linear-gradient(90deg, #fff3cf 0 18px, #ffe6aa 18px 36px);
+      border-inline: 1px solid rgba(43, 32, 24, 0.08);
+      box-shadow: 0 18px 48px var(--shadow);
+    }
+
+    header {
+      flex: 0 0 auto;
+      padding: max(14px, env(safe-area-inset-top)) 14px 10px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0 12%, transparent 12% 24%, rgba(255, 255, 255, 0.28) 24% 36%, transparent 36% 100%),
+        linear-gradient(180deg, #fff2a8 0%, #ffd84c 58%, #ffb13d 100%);
+      border-bottom: 5px solid #2fc4f3;
+    }
+
+    .brand-row,
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand small {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      color: #7b3f14;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.56);
+    }
+
+    h1 {
+      margin: 2px 0 0;
+      font-size: clamp(1.55rem, 7.6vw, 2.28rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+      color: #ff3b35;
+      text-shadow:
+        2px 2px 0 #fff8e8,
+        4px 4px 0 rgba(43, 32, 24, 0.13);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      min-width: 44px;
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--ketchup);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      box-shadow: 0 4px 0 #9c241f, 0 8px 16px rgba(156, 36, 31, 0.22);
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #9c241f, 0 4px 10px rgba(156, 36, 31, 0.2);
+    }
+
+    .icon-button {
+      width: 46px;
+      padding: 0;
+      font-size: 1.1rem;
+    }
+
+    .primary-button {
+      width: min(78vw, 270px);
+      min-height: 58px;
+      padding: 0 26px;
+      font-size: 1.45rem;
+      background: var(--lettuce);
+      box-shadow: 0 5px 0 #21814a, 0 12px 22px rgba(33, 129, 74, 0.25);
+    }
+
+    .secondary-button {
+      width: min(78vw, 270px);
+      min-height: 54px;
+      padding: 0 22px;
+      font-size: 1.1rem;
+    }
+
+    .stat-row {
+      margin-top: 10px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 7px 12px;
+      border: 3px solid rgba(123, 63, 20, 0.15);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff 0%, #fff6d8 100%);
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 4px 0 rgba(123, 63, 20, 0.14);
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: #8a3f16;
+    }
+
+    .next-piece {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: inset 0 -3px 0 rgba(43, 32, 24, 0.08);
+      font-size: 1.1rem;
+      overflow: hidden;
+    }
+
+    .next-piece img {
+      display: block;
+      max-width: 86%;
+      max-height: 86%;
+      object-fit: contain;
+    }
+
+    .playfield {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(105,199,242,0.82), rgba(255,248,232,0) 62%),
+        linear-gradient(180deg, #fff8e8 0%, #ffe7b0 100%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,248,232,0.96), rgba(255,226,125,0.94)),
+        radial-gradient(circle at 50% 28%, rgba(255,255,255,0.9), transparent 34%);
+      text-align: center;
+    }
+
+    .screen[hidden] {
+      display: none;
+    }
+
+    .screen-content {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      width: 100%;
+    }
+
+    .mascot-strip {
+      display: flex;
+      justify-content: center;
+      gap: clamp(7px, 2.5vw, 12px);
+      width: 100%;
+      font-size: clamp(1.1rem, 5.4vw, 1.75rem);
+      font-weight: 900;
+      color: #7b3f14;
+      text-transform: uppercase;
+      filter: drop-shadow(0 5px 0 rgba(43, 32, 24, 0.08));
+    }
+
+    .screen h2 {
+      margin: 0;
+      font-size: clamp(2.2rem, 13vw, 4.2rem);
+      line-height: 0.88;
+      color: var(--ketchup);
+      text-shadow: 3px 3px 0 #fff, 5px 5px 0 rgba(43, 32, 24, 0.12);
+    }
+
+    .screen p {
+      max-width: 310px;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #654018;
+    }
+
+    .how-card {
+      display: grid;
+      gap: 8px;
+      width: min(82vw, 310px);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .how-card li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 2px solid rgba(123, 63, 20, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.64);
+      color: #654018;
+      font-size: 0.92rem;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .how-step {
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--ketchup);
+      color: #fff;
+      font-size: 0.86rem;
+      line-height: 1;
+    }
+
+    .game-message {
+      position: absolute;
+      left: 50%;
+      bottom: 92px;
+      z-index: 8;
+      min-width: 150px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      background: rgba(43, 32, 24, 0.82);
+      color: #fff;
+      font-weight: 900;
+      text-align: center;
+      transform: translateX(-50%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+    }
+
+    .game-message.show {
+      opacity: 1;
+    }
+
+    footer {
+      flex: 0 0 auto;
+      padding: 8px 12px max(9px, env(safe-area-inset-bottom));
+      background: #fff4d3;
+      border-top: 2px solid rgba(123, 63, 20, 0.12);
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #7b3f14;
+    }
+
+    @media (max-height: 630px) {
+      header {
+        padding-top: max(8px, env(safe-area-inset-top));
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .stat-row {
+        margin-top: 5px;
+      }
+
+      .stat {
+        min-height: 30px;
+        padding: 4px 8px;
+      }
+
+      footer {
+        display: none;
+      }
+    }
+
+    @media (min-width: 760px) {
+      .game-shell {
+        height: min(100dvh, 920px);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell" aria-label="Burger Blast game">
+    <header>
+      <div class="brand-row">
+        <div class="brand">
+          <small>Our Mom's Restaurant</small>
+          <h1>Burger Blast</h1>
+        </div>
+        <div class="button-row" aria-label="Game controls">
+          <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game" title="Pause">⏸</button>
+          <button id="soundButton" class="icon-button" type="button" aria-label="Sound off" title="Sound off">🔇</button>
+          <button id="restartButton" class="icon-button" type="button" aria-label="Restart game" title="Restart">↻</button>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat" aria-live="polite">
+          <span class="stat-label">Score</span>
+          <span id="score">0</span>
+        </div>
+        <div class="stat" aria-live="polite">
+          <span class="stat-label">Next</span>
+          <span id="nextPiece" class="next-piece"></span>
+        </div>
+      </div>
+    </header>
+
+    <section class="playfield">
+      <canvas id="gameCanvas" aria-label="Burger Blast play area"></canvas>
+      <div id="gameMessage" class="game-message" aria-live="polite"></div>
+
+      <div id="startScreen" class="screen">
+        <div class="screen-content">
+          <div class="mascot-strip" aria-hidden="true">Our Mom's</div>
+          <h2>Burger Blast</h2>
+          <p>Match 3 foods, clear the board, and keep the kitchen line from reaching you.</p>
+          <ol class="how-card" aria-label="How to play">
+            <li><span class="how-step">1</span><span>Drag to aim</span></li>
+            <li><span class="how-step">2</span><span>Release to shoot</span></li>
+            <li><span class="how-step">3</span><span>Match 3 to pop</span></li>
+          </ol>
+          <button id="playButton" class="primary-button" type="button">Play</button>
+        </div>
+      </div>
+
+      <div id="pauseScreen" class="screen" hidden>
+        <div class="screen-content">
+          <div class="mascot-strip" aria-hidden="true">Burger Blast</div>
+          <h2>Paused</h2>
+          <button id="resumeButton" class="primary-button" type="button">Resume</button>
+          <button id="pauseRestartButton" class="secondary-button" type="button">Restart</button>
+        </div>
+      </div>
+
+      <div id="gameOverScreen" class="screen" hidden>
+        <div class="screen-content">
+          <div class="mascot-strip" aria-hidden="true">Play Again</div>
+          <h2 id="endTitle">Game Over</h2>
+          <p id="finalScore">Score: 0</p>
+          <button id="gameOverRestartButton" class="primary-button" type="button">Play Again</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>Made with care so your little ones can have fun while we cook.</footer>
+  </main>
+
+  <script>
+    /*
+      Burger Blast MVP
+      Static, kid-safe, no backend, no external libraries.
+
+      TODO: Replace the embedded MVP food SVGs with final custom Our Mom's
+      food artwork when available. The logo pieces already use local PNG assets
+      for GitHub Pages compatibility.
+    */
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const nextPieceEl = document.getElementById("nextPiece");
+    const gameMessage = document.getElementById("gameMessage");
+    const startScreen = document.getElementById("startScreen");
+    const pauseScreen = document.getElementById("pauseScreen");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const finalScoreEl = document.getElementById("finalScore");
+    const endTitleEl = document.getElementById("endTitle");
+    const playButton = document.getElementById("playButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const soundButton = document.getElementById("soundButton");
+    const restartButton = document.getElementById("restartButton");
+    const resumeButton = document.getElementById("resumeButton");
+    const pauseRestartButton = document.getElementById("pauseRestartButton");
+    const gameOverRestartButton = document.getElementById("gameOverRestartButton");
+
+    const FOODS = [
+      { id: "burger", label: "Burger", emoji: "🍔", color: "#d98532", emojiFillScale: 1.78, glow: true },
+      { id: "fries", label: "Fries", emoji: "🍟", color: "#ffd23f", emojiFillScale: 1.64, glow: true },
+      { id: "drink", label: "Drink", emoji: "🥤", color: "#e94b3c", emojiFillScale: 1.36 },
+      {
+        id: "badgeLogo",
+        label: "Our Mom's badge",
+        color: "#f2f2f2",
+        image: "assets/our-moms-badge-logo.png",
+        imageScale: 1.94,
+        clipScale: 0.96
+      },
+      {
+        id: "ladyLogo",
+        label: "Our Mom's lady",
+        color: "#ffe9c2",
+        image: "assets/our-moms-lady-logo.png",
+        imageScale: 1.86
+      }
+    ];
+
+    const foodImages = new Map();
+    const emojiSprites = new Map();
+    for (const food of FOODS) {
+      if (!food.image) continue;
+      const img = new Image();
+      img.src = food.image;
+      foodImages.set(food.id, img);
+    }
+
+    const COLS = 8;
+    const ROWS = 13;
+    const START_ROWS = 5;
+    const SHOT_SPEED = 820;
+    const MAX_AIM_ANGLE = 78 * Math.PI / 180;
+    const MIN_AIM_ANGLE = 18 * Math.PI / 180;
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let radius = 20;
+    let rowGap = 34;
+    let topOffset = 14;
+    let sideMargin = 14;
+    let grid = [];
+    let clearingPieces = [];
+    let currentFood;
+    let nextFood;
+    let projectile = null;
+    let aim = { x: 0, y: -1 };
+    let isAiming = false;
+    let pointer = null;
+    let shooter = { x: 0, y: 0 };
+    let score = 0;
+    let shots = 0;
+    let missesSincePressure = 0;
+    let running = false;
+    let paused = false;
+    let gameOver = false;
+    let soundOn = false;
+    let audioContext = null;
+    let lastTime = 0;
+    let messageTimer = 0;
+
+    function randomFood() {
+      return FOODS[Math.floor(Math.random() * FOODS.length)];
+    }
+
+    function validColsForRow(row) {
+      return row % 2 === 0 ? COLS : COLS - 1;
+    }
+
+    function makeEmptyGrid() {
+      return Array.from({ length: ROWS }, (_, row) =>
+        Array.from({ length: validColsForRow(row) }, () => null)
+      );
+    }
+
+    function cellCenter(row, col) {
+      return {
+        x: sideMargin + radius + col * radius * 2 + (row % 2 ? radius : 0),
+        y: topOffset + radius + row * rowGap
+      };
+    }
+
+    function key(row, col) {
+      return row + "," + col;
+    }
+
+    function inBounds(row, col) {
+      return row >= 0 && row < ROWS && col >= 0 && col < validColsForRow(row);
+    }
+
+    function neighbors(row, col) {
+      const even = row % 2 === 0;
+      const offsets = even
+        ? [[0, -1], [0, 1], [-1, -1], [-1, 0], [1, -1], [1, 0]]
+        : [[0, -1], [0, 1], [-1, 0], [-1, 1], [1, 0], [1, 1]];
+
+      return offsets
+        .map(([dr, dc]) => [row + dr, col + dc])
+        .filter(([r, c]) => inBounds(r, c));
+    }
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+      width = Math.floor(rect.width);
+      height = Math.floor(rect.height);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      radius = Math.max(16, Math.min(25, (width - 28) / (COLS * 2)));
+      rowGap = radius * 1.72;
+      sideMargin = (width - (COLS * radius * 2)) / 2;
+      topOffset = Math.max(10, height * 0.018);
+      shooter = { x: width / 2, y: height - Math.max(58, height * 0.12) };
+      aim = { x: 0, y: -1 };
+    }
+
+    function startNewGame() {
+      grid = makeEmptyGrid();
+      for (let row = 0; row < START_ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          const shouldFill = row < 3 || Math.random() > 0.22;
+          grid[row][col] = shouldFill ? randomFood() : null;
+        }
+      }
+
+      currentFood = randomFood();
+      nextFood = randomFood();
+      projectile = null;
+      clearingPieces = [];
+      pointer = null;
+      isAiming = false;
+      score = 0;
+      shots = 0;
+      missesSincePressure = 0;
+      running = true;
+      paused = false;
+      gameOver = false;
+      lastTime = performance.now();
+      updateHud();
+      hideScreens();
+      showMessage("Ready!");
+      playSound("start");
+    }
+
+    function hideScreens() {
+      startScreen.hidden = true;
+      pauseScreen.hidden = true;
+      gameOverScreen.hidden = true;
+      pauseButton.textContent = "⏸";
+      pauseButton.setAttribute("aria-label", "Pause game");
+      pauseButton.title = "Pause";
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score.toString();
+      if (nextFood && nextFood.image) {
+        nextPieceEl.innerHTML = `<img src="${nextFood.image}" alt="${nextFood.label}">`;
+      } else if (nextFood && nextFood.emoji) {
+        nextPieceEl.textContent = nextFood.emoji;
+      } else {
+        nextPieceEl.textContent = nextFood ? nextFood.label.charAt(0) : "";
+      }
+      soundButton.textContent = soundOn ? "🔊" : "🔇";
+      soundButton.setAttribute("aria-label", soundOn ? "Sound on" : "Sound off");
+      soundButton.title = soundOn ? "Sound on" : "Sound off";
+    }
+
+    function showMessage(text) {
+      gameMessage.textContent = text;
+      gameMessage.classList.add("show");
+      clearTimeout(messageTimer);
+      messageTimer = setTimeout(() => gameMessage.classList.remove("show"), 900);
+    }
+
+    function getAudioContext() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioContext) audioContext = new AudioCtx();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    }
+
+    function playSound(type) {
+      if (!soundOn) return;
+      const audio = getAudioContext();
+      if (!audio) return;
+
+      const now = audio.currentTime;
+      const gain = audio.createGain();
+      const osc = audio.createOscillator();
+      const settings = {
+        shoot: [360, 0.055, "triangle", 0.08],
+        clear: [720, 0.09, "sine", 0.1],
+        bigclear: [920, 0.14, "sine", 0.12],
+        pressure: [170, 0.16, "sawtooth", 0.07],
+        start: [520, 0.08, "triangle", 0.06],
+        win: [860, 0.18, "sine", 0.11],
+        gameover: [130, 0.22, "triangle", 0.08],
+        button: [480, 0.05, "triangle", 0.05]
+      }[type] || [440, 0.06, "sine", 0.06];
+
+      osc.type = settings[2];
+      osc.frequency.setValueAtTime(settings[0], now);
+      if (type === "shoot") osc.frequency.exponentialRampToValueAtTime(520, now + settings[1]);
+      if (type === "clear" || type === "bigclear" || type === "win") osc.frequency.exponentialRampToValueAtTime(settings[0] * 1.42, now + settings[1]);
+      if (type === "gameover" || type === "pressure") osc.frequency.exponentialRampToValueAtTime(Math.max(80, settings[0] * 0.72), now + settings[1]);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(settings[3], now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + settings[1]);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(now);
+      osc.stop(now + settings[1] + 0.02);
+    }
+
+    function setPaused(value) {
+      if (!running || gameOver) return;
+      paused = value;
+      pauseScreen.hidden = !paused;
+      pauseButton.textContent = paused ? "▶" : "⏸";
+      pauseButton.setAttribute("aria-label", paused ? "Resume game" : "Pause game");
+      pauseButton.title = paused ? "Resume" : "Pause";
+      lastTime = performance.now();
+      playSound("button");
+    }
+
+    function finishGame(title) {
+      running = false;
+      gameOver = true;
+      paused = false;
+      projectile = null;
+      endTitleEl.textContent = title || "Game Over";
+      finalScoreEl.textContent = "Score: " + score;
+      gameOverScreen.hidden = false;
+      pauseScreen.hidden = true;
+      startScreen.hidden = true;
+      playSound(title === "You Win!" ? "win" : "gameover");
+    }
+
+    function screenToCanvasPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    function updateAimFromPoint(point) {
+      const dx = point.x - shooter.x;
+      const dy = point.y - shooter.y;
+      let angle = Math.atan2(-dy, dx);
+
+      if (angle < MIN_AIM_ANGLE) angle = MIN_AIM_ANGLE;
+      if (angle > Math.PI - MIN_AIM_ANGLE) angle = Math.PI - MIN_AIM_ANGLE;
+      if (angle > Math.PI / 2 + MAX_AIM_ANGLE) angle = Math.PI / 2 + MAX_AIM_ANGLE;
+      if (angle < Math.PI / 2 - MAX_AIM_ANGLE) angle = Math.PI / 2 - MAX_AIM_ANGLE;
+
+      aim = { x: Math.cos(angle), y: -Math.sin(angle) };
+      pointer = point;
+    }
+
+    function shoot() {
+      if (!running || paused || gameOver || projectile) return;
+      projectile = {
+        x: shooter.x,
+        y: shooter.y - radius * 0.2,
+        vx: aim.x * SHOT_SPEED,
+        vy: aim.y * SHOT_SPEED,
+        food: currentFood
+      };
+      currentFood = nextFood;
+      nextFood = randomFood();
+      shots++;
+      updateHud();
+      playSound("shoot");
+    }
+
+    function advanceProjectile(dt) {
+      if (!projectile) return;
+
+      projectile.x += projectile.vx * dt;
+      projectile.y += projectile.vy * dt;
+
+      if (projectile.x <= sideMargin + radius) {
+        projectile.x = sideMargin + radius;
+        projectile.vx *= -1;
+      }
+
+      if (projectile.x >= width - sideMargin - radius) {
+        projectile.x = width - sideMargin - radius;
+        projectile.vx *= -1;
+      }
+
+      if (projectile.y <= topOffset + radius * 0.55) {
+        snapProjectile();
+        return;
+      }
+
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          if (!grid[row][col]) continue;
+          const center = cellCenter(row, col);
+          const distance = Math.hypot(projectile.x - center.x, projectile.y - center.y);
+          if (distance <= radius * 1.82) {
+            snapProjectile();
+            return;
+          }
+        }
+      }
+    }
+
+    function snapProjectile() {
+      const target = nearestEmptyCell(projectile.x, projectile.y);
+      if (!target) {
+        finishGame("Kitchen Full");
+        return;
+      }
+
+      grid[target.row][target.col] = projectile.food;
+      projectile = null;
+
+      const cleared = clearMatches(target.row, target.col);
+      const dropped = dropFloatingPieces();
+
+      if (cleared > 0) {
+        score += cleared * 20 + dropped * 30;
+        missesSincePressure = 0;
+        showMessage(cleared >= 5 ? "Big Blast!" : "Yum!");
+        playSound(cleared >= 5 ? "bigclear" : "clear");
+      } else {
+        missesSincePressure++;
+        if (missesSincePressure >= 5) {
+        missesSincePressure = 0;
+        addPressureRow();
+        showMessage("New row!");
+        playSound("pressure");
+        } else if (missesSincePressure === 4) {
+          showMessage("More orders soon!");
+        }
+      }
+
+      updateHud();
+      checkEndState();
+    }
+
+    function nearestEmptyCell(x, y) {
+      let best = null;
+      let bestDistance = Infinity;
+
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          if (grid[row][col]) continue;
+          const center = cellCenter(row, col);
+          const distance = Math.hypot(x - center.x, y - center.y);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            best = { row, col };
+          }
+        }
+      }
+
+      return best;
+    }
+
+    function clearMatches(startRow, startCol) {
+      const food = grid[startRow][startCol];
+      if (!food) return 0;
+
+      const stack = [[startRow, startCol]];
+      const seen = new Set([key(startRow, startCol)]);
+      const group = [];
+
+      while (stack.length) {
+        const [row, col] = stack.pop();
+        group.push([row, col]);
+
+        for (const [nextRow, nextCol] of neighbors(row, col)) {
+          const next = grid[nextRow][nextCol];
+          const nextKey = key(nextRow, nextCol);
+          if (next && next.id === food.id && !seen.has(nextKey)) {
+            seen.add(nextKey);
+            stack.push([nextRow, nextCol]);
+          }
+        }
+      }
+
+      if (group.length < 3) return 0;
+
+      for (const [row, col] of group) {
+        const center = cellCenter(row, col);
+        addClearAnimation(center.x, center.y, grid[row][col], "pop");
+        grid[row][col] = null;
+      }
+
+      return group.length;
+    }
+
+    function addClearAnimation(x, y, food, kind) {
+      clearingPieces.push({
+        x,
+        y,
+        food,
+        kind,
+        age: 0,
+        duration: kind === "drop" ? 0.48 : 0.34
+      });
+    }
+
+    function dropFloatingPieces() {
+      const anchored = new Set();
+      const stack = [];
+
+      for (let col = 0; col < validColsForRow(0); col++) {
+        if (grid[0][col]) {
+          anchored.add(key(0, col));
+          stack.push([0, col]);
+        }
+      }
+
+      while (stack.length) {
+        const [row, col] = stack.pop();
+        for (const [nextRow, nextCol] of neighbors(row, col)) {
+          const nextKey = key(nextRow, nextCol);
+          if (grid[nextRow][nextCol] && !anchored.has(nextKey)) {
+            anchored.add(nextKey);
+            stack.push([nextRow, nextCol]);
+          }
+        }
+      }
+
+      let dropped = 0;
+      for (let row = 1; row < ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          if (grid[row][col] && !anchored.has(key(row, col))) {
+            const center = cellCenter(row, col);
+            addClearAnimation(center.x, center.y, grid[row][col], "drop");
+            grid[row][col] = null;
+            dropped++;
+          }
+        }
+      }
+
+      return dropped;
+    }
+
+    function addPressureRow() {
+      for (let row = ROWS - 1; row > 0; row--) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          const sourceCol = Math.min(col, validColsForRow(row - 1) - 1);
+          grid[row][col] = grid[row - 1][sourceCol] || null;
+        }
+      }
+
+      for (let col = 0; col < validColsForRow(0); col++) {
+        grid[0][col] = Math.random() > 0.12 ? randomFood() : null;
+      }
+    }
+
+    function checkEndState() {
+      let hasPiece = false;
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          const piece = grid[row][col];
+          if (!piece) continue;
+          hasPiece = true;
+          const center = cellCenter(row, col);
+          if (center.y + radius * 1.2 >= shooter.y - radius * 1.6) {
+            finishGame("Game Over");
+            return;
+          }
+        }
+      }
+
+      if (!hasPiece) {
+        score += 500;
+        updateHud();
+        finishGame("You Win!");
+      }
+    }
+
+    function drawBackground() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.fillStyle = "#f8d77a";
+      ctx.fillRect(0, height - 42, width, 42);
+
+      ctx.fillStyle = "#7ac45a";
+      ctx.fillRect(0, height - 30, width, 30);
+
+      ctx.strokeStyle = "rgba(123, 63, 20, 0.18)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 12]);
+      ctx.beginPath();
+      ctx.moveTo(10, shooter.y - radius * 2.2);
+      ctx.lineTo(width - 10, shooter.y - radius * 2.2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawFoodPiece(x, y, food, scale = 1) {
+      const r = radius * scale;
+
+      ctx.save();
+      ctx.translate(x, y);
+
+      ctx.save();
+      ctx.fillStyle = "rgba(43, 32, 24, 0.18)";
+      ctx.beginPath();
+      ctx.ellipse(0, r * 0.18, r * 0.86, r * 0.78, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (food.emoji) {
+        if (food.id === "drink") {
+          ctx.fillStyle = "#f36a5f";
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(255, 248, 232, 0.92)";
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.9, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(43, 32, 24, 0.11)";
+          ctx.lineWidth = Math.max(1, r * 0.025);
+          ctx.stroke();
+
+          drawCenteredEmoji(food.emoji, r, food.emojiFillScale || 1.36);
+          drawPieceHighlight(r);
+          ctx.restore();
+          return;
+        }
+
+        if (food.glow) {
+          ctx.fillStyle = "rgba(255, 248, 232, 0.36)";
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.88, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.98, 0, Math.PI * 2);
+        ctx.clip();
+        drawCenteredEmoji(food.emoji, r, food.emojiFillScale || 1.82);
+        ctx.restore();
+        drawPieceHighlight(r);
+        ctx.restore();
+        return;
+      }
+
+      ctx.fillStyle = food.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+      ctx.beginPath();
+      ctx.arc(-r * 0.34, -r * 0.38, r * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(43, 32, 24, 0.18)";
+      ctx.lineWidth = Math.max(2, r * 0.12);
+      ctx.stroke();
+
+      const logoImage = foodImages.get(food.id);
+      if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
+        const maxSize = r * (food.imageScale || 1.5);
+        const imageRatio = logoImage.naturalWidth / logoImage.naturalHeight;
+        const drawWidth = imageRatio >= 1 ? maxSize : maxSize * imageRatio;
+        const drawHeight = imageRatio >= 1 ? maxSize / imageRatio : maxSize;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (food.clipScale || 0.92), 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(logoImage, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+        ctx.restore();
+        drawPieceHighlight(r);
+      } else {
+        ctx.fillStyle = "#fff8e8";
+        ctx.font = `900 ${Math.floor(r * 0.58)}px ui-rounded, system-ui, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(food.label.charAt(0), 0, 1);
+        drawPieceHighlight(r);
+      }
+      ctx.restore();
+    }
+
+    function drawPieceHighlight(r) {
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.28, -r * 0.34, r * 0.22, r * 0.12, -0.42, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function getEmojiSprite(emoji) {
+      if (emojiSprites.has(emoji)) return emojiSprites.get(emoji);
+
+      const size = 192;
+      const offscreen = document.createElement("canvas");
+      offscreen.width = size;
+      offscreen.height = size;
+      const offCtx = offscreen.getContext("2d", { willReadFrequently: true });
+
+      offCtx.clearRect(0, 0, size, size);
+      offCtx.font = "132px \"Apple Color Emoji\", \"Segoe UI Emoji\", sans-serif";
+      offCtx.textAlign = "center";
+      offCtx.textBaseline = "middle";
+      offCtx.fillText(emoji, size / 2, size / 2);
+
+      const imageData = offCtx.getImageData(0, 0, size, size);
+      const data = imageData.data;
+      let minX = size;
+      let minY = size;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const alpha = data[(y * size + x) * 4 + 3];
+          if (alpha > 12) {
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+          }
+        }
+      }
+
+      if (maxX < minX || maxY < minY) {
+        const fallback = { canvas: offscreen, x: 0, y: 0, width: size, height: size };
+        emojiSprites.set(emoji, fallback);
+        return fallback;
+      }
+
+      const padding = 8;
+      const sprite = {
+        canvas: offscreen,
+        x: Math.max(0, minX - padding),
+        y: Math.max(0, minY - padding),
+        width: Math.min(size - 1, maxX + padding) - Math.max(0, minX - padding) + 1,
+        height: Math.min(size - 1, maxY + padding) - Math.max(0, minY - padding) + 1
+      };
+      emojiSprites.set(emoji, sprite);
+      return sprite;
+    }
+
+    function drawCenteredEmoji(emoji, r, fillScale = 1.34) {
+      const sprite = getEmojiSprite(emoji);
+      const targetSize = r * fillScale;
+      const spriteRatio = sprite.width / sprite.height;
+      const drawWidth = spriteRatio >= 1 ? targetSize : targetSize * spriteRatio;
+      const drawHeight = spriteRatio >= 1 ? targetSize / spriteRatio : targetSize;
+
+      ctx.drawImage(
+        sprite.canvas,
+        sprite.x,
+        sprite.y,
+        sprite.width,
+        sprite.height,
+        -drawWidth / 2,
+        -drawHeight / 2,
+        drawWidth,
+        drawHeight
+      );
+    }
+
+    function drawFoodArt(type, r) {
+      ctx.save();
+      ctx.scale(r / 60, r / 60);
+
+      if (type === "burger") {
+        ctx.fillStyle = "#fff8e8";
+        ctx.beginPath();
+        ctx.arc(0, 0, 38, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#693818";
+        ctx.beginPath();
+        ctx.ellipse(0, 12, 34, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#f0a23a";
+        ctx.beginPath();
+        ctx.moveTo(-36, 5);
+        ctx.bezierCurveTo(-30, -22, -14, -34, 0, -34);
+        ctx.bezierCurveTo(14, -34, 30, -22, 36, 5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#ffd36b";
+        roundedRectPath(-38, 3, 76, 10, 4);
+        ctx.fill();
+
+        ctx.fillStyle = "#50ad43";
+        ctx.beginPath();
+        ctx.moveTo(-35, 14);
+        ctx.bezierCurveTo(-26, 6, -20, 22, -10, 14);
+        ctx.bezierCurveTo(0, 6, 8, 22, 18, 14);
+        ctx.bezierCurveTo(26, 8, 30, 17, 36, 12);
+        ctx.lineTo(36, 25);
+        ctx.lineTo(-35, 25);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#ce2f26";
+        roundedRectPath(-36, 24, 72, 10, 5);
+        ctx.fill();
+
+        ctx.fillStyle = "#e19a39";
+        ctx.beginPath();
+        ctx.ellipse(0, 38, 38, 13, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffe3a0";
+        [[-16, -20, 0.4], [0, -24, -0.2], [17, -18, 0.4], [27, -7, -0.2]].forEach(([sx, sy, rot]) => {
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.rotate(rot);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 3.4, 1.8, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      }
+
+      if (type === "fries") {
+        ctx.fillStyle = "#fff8e8";
+        ctx.beginPath();
+        ctx.arc(0, 0, 38, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#e6a722";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.fillStyle = "#ffd45a";
+        [
+          [-28, -38, -16, 20],
+          [-12, -44, -4, 20],
+          [8, -42, 1, 20],
+          [27, -36, 12, 20]
+        ].forEach(([x1, y1, x2, y2]) => {
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x1 + 10, y1);
+          ctx.lineTo(x2 + 8, y2);
+          ctx.lineTo(x2 - 4, y2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        ctx.fillStyle = "#d6312c";
+        ctx.beginPath();
+        ctx.moveTo(-34, -4);
+        ctx.lineTo(34, -4);
+        ctx.lineTo(24, 45);
+        ctx.lineTo(-24, 45);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#ef4a3f";
+        ctx.beginPath();
+        ctx.moveTo(-24, 6);
+        ctx.lineTo(24, 6);
+        ctx.lineTo(18, 36);
+        ctx.lineTo(-18, 36);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#ffd45a";
+        ctx.beginPath();
+        ctx.arc(0, 20, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#9b3b1d";
+        ctx.beginPath();
+        ctx.arc(-5, 15, 2.5, 0, Math.PI * 2);
+        ctx.arc(5, 15, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#9b3b1d";
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-7, 24);
+        ctx.quadraticCurveTo(0, 29, 8, 24);
+        ctx.stroke();
+      }
+
+      if (type === "drink") {
+        ctx.fillStyle = "#fff8e8";
+        ctx.beginPath();
+        ctx.arc(0, 0, 38, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#2b2018";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(12, -40);
+        ctx.lineTo(36, -48);
+        ctx.stroke();
+
+        ctx.fillStyle = "#f5f5f1";
+        ctx.strokeStyle = "#d7d2c7";
+        ctx.lineWidth = 4;
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(-22, -34);
+        ctx.lineTo(22, -34);
+        ctx.lineTo(16, 42);
+        ctx.lineTo(-16, 42);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#d64032";
+        ctx.beginPath();
+        ctx.moveTo(-18, -8);
+        ctx.lineTo(18, -8);
+        ctx.lineTo(14, 24);
+        ctx.lineTo(-14, 24);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "#d64032";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(10, -42);
+        ctx.lineTo(1, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#d7d2c7";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, -34, 27, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function roundedRectPath(x, y, rectWidth, rectHeight, cornerRadius) {
+      const r = Math.min(cornerRadius, rectWidth / 2, rectHeight / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + rectWidth - r, y);
+      ctx.quadraticCurveTo(x + rectWidth, y, x + rectWidth, y + r);
+      ctx.lineTo(x + rectWidth, y + rectHeight - r);
+      ctx.quadraticCurveTo(x + rectWidth, y + rectHeight, x + rectWidth - r, y + rectHeight);
+      ctx.lineTo(x + r, y + rectHeight);
+      ctx.quadraticCurveTo(x, y + rectHeight, x, y + rectHeight - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+    }
+
+    function drawGrid() {
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < validColsForRow(row); col++) {
+          const food = grid[row][col];
+          if (!food) continue;
+          const center = cellCenter(row, col);
+          drawFoodPiece(center.x, center.y, food);
+        }
+      }
+    }
+
+    function updateClearingPieces(dt) {
+      if (!clearingPieces.length) return;
+      for (const piece of clearingPieces) {
+        piece.age += dt;
+      }
+      clearingPieces = clearingPieces.filter(piece => piece.age < piece.duration);
+    }
+
+    function drawClearingPieces() {
+      for (const piece of clearingPieces) {
+        const progress = Math.min(1, piece.age / piece.duration);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const alpha = 1 - ease;
+        const scale = piece.kind === "drop" ? 1 - progress * 0.22 : 1 + Math.sin(progress * Math.PI) * 0.42;
+        const y = piece.kind === "drop" ? piece.y + progress * radius * 2.4 : piece.y;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        drawFoodPiece(piece.x, y, piece.food, scale);
+        ctx.restore();
+      }
+    }
+
+    function drawAim() {
+      if (!running || paused || gameOver || projectile) return;
+      const path = aimGuidePath();
+
+      ctx.strokeStyle = "rgba(43, 32, 24, 0.38)";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      ctx.setLineDash([7, 9]);
+      ctx.beginPath();
+      ctx.moveTo(path[0].x, path[0].y);
+      for (const point of path.slice(1)) {
+        ctx.lineTo(point.x, point.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function aimGuidePath() {
+      const left = sideMargin + radius;
+      const right = width - sideMargin - radius;
+      const top = topOffset + radius;
+      const maxLength = Math.min(height * 0.56, 380);
+      const points = [{ x: shooter.x, y: shooter.y }];
+      let x = shooter.x;
+      let y = shooter.y;
+      let vx = aim.x;
+      let vy = aim.y;
+      let remaining = maxLength;
+
+      for (let bounce = 0; bounce < 2 && remaining > 0; bounce++) {
+        const distanceToTop = vy < 0 ? (top - y) / vy : Infinity;
+        const wallX = vx < 0 ? left : right;
+        const distanceToWall = vx !== 0 ? (wallX - x) / vx : Infinity;
+        const travel = Math.max(0, Math.min(remaining, distanceToTop, distanceToWall));
+
+        x += vx * travel;
+        y += vy * travel;
+        points.push({ x, y });
+        remaining -= travel;
+
+        if (travel === distanceToWall && remaining > 0) {
+          vx *= -1;
+        } else {
+          break;
+        }
+      }
+
+      return points;
+    }
+
+    function drawShooter() {
+      ctx.fillStyle = "#7b3f14";
+      roundedRectPath(shooter.x - 44, shooter.y + radius * 0.8, 88, 18, 8);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff2c2";
+      ctx.beginPath();
+      ctx.arc(shooter.x, shooter.y + radius * 0.55, radius * 1.2, Math.PI, 0);
+      ctx.fill();
+
+      drawFoodPiece(shooter.x, shooter.y, currentFood || FOODS[0], 1.08);
+    }
+
+    function drawProjectile() {
+      if (!projectile) return;
+      drawFoodPiece(projectile.x, projectile.y, projectile.food, 1.02);
+    }
+
+    function render() {
+      drawBackground();
+      drawGrid();
+      drawClearingPieces();
+      drawAim();
+      drawProjectile();
+      drawShooter();
+    }
+
+    function tick(now) {
+      const dt = Math.min(0.03, (now - lastTime) / 1000 || 0);
+      lastTime = now;
+
+      if (running && !paused && !gameOver) {
+        advanceProjectile(dt);
+        updateClearingPieces(dt);
+      }
+
+      render();
+      requestAnimationFrame(tick);
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      if (!running || paused || gameOver || projectile) return;
+      canvas.setPointerCapture(event.pointerId);
+      isAiming = true;
+      updateAimFromPoint(screenToCanvasPoint(event));
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      if (!isAiming) return;
+      updateAimFromPoint(screenToCanvasPoint(event));
+    });
+
+    canvas.addEventListener("pointerup", (event) => {
+      if (!isAiming) return;
+      updateAimFromPoint(screenToCanvasPoint(event));
+      isAiming = false;
+      shoot();
+    });
+
+    canvas.addEventListener("pointercancel", () => {
+      isAiming = false;
+    });
+
+    playButton.addEventListener("click", startNewGame);
+    restartButton.addEventListener("click", startNewGame);
+    pauseRestartButton.addEventListener("click", startNewGame);
+    gameOverRestartButton.addEventListener("click", startNewGame);
+    resumeButton.addEventListener("click", () => setPaused(false));
+    pauseButton.addEventListener("click", () => {
+      if (!running) return;
+      setPaused(!paused);
+    });
+    soundButton.addEventListener("click", () => {
+      soundOn = !soundOn;
+      if (soundOn) getAudioContext();
+      updateHud();
+      showMessage(soundOn ? "Sound on" : "Sound off");
+      playSound("button");
+    });
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", () => setTimeout(resize, 160));
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && running && !gameOver) setPaused(true);
+    });
+
+    resize();
+    grid = makeEmptyGrid();
+    currentFood = randomFood();
+    nextFood = randomFood();
+    updateHud();
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
