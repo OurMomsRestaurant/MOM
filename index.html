@@ -350,10 +350,26 @@
     }
 
     @media (min-width: 760px) {
+      body {
+        background:
+          radial-gradient(circle at 50% 12%, rgba(255, 206, 61, 0.18), transparent 34%),
+          linear-gradient(135deg, #33251c 0%, #251b15 100%);
+        padding: 24px;
+      }
+
       .game-shell {
-        height: min(100dvh, 920px);
+        height: min(calc(100dvh - 48px), 920px);
         border-radius: 8px;
+        border: 10px solid #3b2a20;
+        outline: 4px solid #f8d77a;
         overflow: hidden;
+        box-shadow:
+          0 0 0 2px rgba(255, 255, 255, 0.22),
+          0 24px 60px rgba(0, 0, 0, 0.42);
+      }
+
+      .playfield {
+        border-inline: 4px solid rgba(43, 32, 24, 0.2);
       }
     }
   </style>
