@@ -495,12 +495,12 @@
     const COLS = 8;
     const ROWS = 8;
     const TYPES = [
-      { id: "tomato", label: "Tomato", emoji: "🍅", color: "#f2382d", accent: "#a50f18", glow: "#ff4b3d", token: "#f2382d", emojiScale: 1.72 },
+      { id: "tomato", label: "Tomato", emoji: "🍅", color: "#ff3126", accent: "#d70b18", glow: "#ff5a45", token: "#ff3126", emojiScale: 1.7 },
       { id: "cheese", label: "Cheese", emoji: "🧀", color: "#fff13a", accent: "#c58f00", glow: "#fff15a", token: "#fff13a", emojiScale: 1.68 },
       { id: "lettuce", label: "Lettuce", emoji: "🥬", color: "#28c66f", accent: "#08783e", glow: "#33e07b", token: "#28c66f", emojiScale: 1.7 },
-      { id: "burger", label: "Hamburger", emoji: "🍔", color: "#f47b22", accent: "#a33b13", glow: "#ff7624", token: "#f06418", emojiScale: 1.76 },
+      { id: "burger", label: "Hamburger", emoji: "🍔", color: "#ff8a1f", accent: "#e34d00", glow: "#ff9d24", token: "#ff7a00", emojiScale: 1.56 },
       { id: "beer", label: "Beer", emoji: "🍺", color: "#fff6d8", accent: "#f1b52a", glow: "#ffffff", token: "#ffffff", emojiScale: 1.62 },
-      { id: "shrimp", label: "Shrimp", emoji: "🍤", color: "#ff7c93", accent: "#b8225b", glow: "#ff9fc7", token: "#ffb3c2", emojiScale: 1.74 }
+      { id: "shrimp", label: "Shrimp", emoji: "🍤", color: "#ff2bbd", accent: "#cb0074", glow: "#ff66df", token: "#ff35c8", emojiScale: 1.68 }
     ];
     const LOGO_TYPE = { id: "logo", label: "Our Mom's", image: "assets/our-moms-badge-logo.png", color: "#ffffff", accent: "#f6cf62", glow: "#fff7c6" };
 
@@ -725,9 +725,9 @@
     function setupMusicTracks() {
       if (musicTracks) return musicTracks;
       musicTracks = {
-        normal: makeMusicTrack("assets/music/play-me-like-that-video-game.mp3", 0.22),
+        normal: makeMusicTrack("assets/music/chowder.mp3", 0.21),
         rush: makeMusicTrack("assets/music/powerhouse-1984.mp3", 0.26),
-        power: makeMusicTrack("assets/music/chowder.mp3", 0.24)
+        power: makeMusicTrack("assets/music/play-me-like-that-video-game.mp3", 0.25)
       };
       return musicTracks;
     }
@@ -1472,13 +1472,14 @@
         ["#ff2f70", -0.12, 0.12],
         ["#ffd83d", 0.22, -0.08],
         ["#35d974", 0.58, 0.1],
-        ["#43c2e8", 0.86, -0.04]
+        ["#43c2e8", 0.86, -0.04],
+        ["#00d9ff", 0.38, 0.05]
       ];
       for (const [color, xRatio, skew] of beams) {
         const x = width * xRatio + Math.sin(pulse * 0.9 + xRatio * 8) * 18;
         const beam = ctx.createLinearGradient(x, 0, x + width * skew, height);
         beam.addColorStop(0, rgba(color, 0));
-        beam.addColorStop(0.45, rgba(color, 0.44));
+        beam.addColorStop(0.45, rgba(color, color === "#00d9ff" ? 0.28 : 0.44));
         beam.addColorStop(1, rgba(color, 0));
         ctx.fillStyle = beam;
         ctx.beginPath();
@@ -1496,7 +1497,7 @@
       for (let i = 0; i < 42; i++) {
         const x = ((i * 73 + pulse * 18) % (width + 70)) - 35;
         const y = 30 + ((i * 47) % Math.max(1, height - 92));
-        ctx.fillStyle = i % 3 === 0 ? "#ffffff" : i % 3 === 1 ? "#ffe65e" : "#ff58b0";
+        ctx.fillStyle = i % 4 === 0 ? "#00d9ff" : i % 4 === 1 ? "#ffffff" : i % 4 === 2 ? "#ffe65e" : "#ff58b0";
         drawSparkle(x, y, 2.4 + (i % 4), ctx.fillStyle);
       }
       ctx.restore();
@@ -1517,8 +1518,11 @@
       roundRect(boardX - 7, boardY - 7, boardSize + 14, boardSize + 14, 8);
       ctx.fillStyle = "#20130f";
       ctx.fill();
+      ctx.strokeStyle = "#00d9ff";
+      ctx.lineWidth = 5;
+      ctx.stroke();
       ctx.strokeStyle = "#ffd875";
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       const boardGrad = ctx.createLinearGradient(boardX, boardY, boardX + boardSize, boardY + boardSize);
@@ -1528,6 +1532,8 @@
       roundRect(boardX, boardY, boardSize, boardSize, 6);
       ctx.fillStyle = boardGrad;
       ctx.fill();
+
+      drawBoardLogoWatermark();
 
       for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
@@ -1550,9 +1556,9 @@
               cellGrad.addColorStop(0.58, "rgba(245,250,255,0.72)");
               cellGrad.addColorStop(1, "rgba(186,216,255,0.42)");
             } else {
-              cellGrad.addColorStop(0, rgba(cellColor, 0.78));
-              cellGrad.addColorStop(0.62, rgba(cellColor, 0.54));
-              cellGrad.addColorStop(1, rgba(piece.type.accent || cellColor, 0.44));
+              cellGrad.addColorStop(0, rgba(cellColor, 0.94));
+              cellGrad.addColorStop(0.6, rgba(cellColor, 0.7));
+              cellGrad.addColorStop(1, rgba(piece.type.accent || cellColor, 0.56));
             }
             ctx.fillStyle = cellGrad;
           } else {
@@ -1560,11 +1566,28 @@
           }
           drawCellSocketPath(x + 2, y + 2, tile - 4, tile - 4, piece?.type.id);
           ctx.fill();
-          ctx.strokeStyle = piece ? "rgba(255,255,255,0.34)" : "rgba(255, 220, 128, 0.08)";
-          ctx.lineWidth = piece ? 1.5 : 1;
+          ctx.strokeStyle = piece ? "rgba(0,217,255,0.32)" : "rgba(255, 220, 128, 0.08)";
+          ctx.lineWidth = piece ? 1.8 : 1;
           ctx.stroke();
         }
       }
+    }
+
+    function drawBoardLogoWatermark() {
+      if (!badgeImage.complete || !badgeImage.naturalWidth) return;
+      const size = boardSize * 1.1;
+      const x = boardX + boardSize / 2 - size / 2;
+      const y = boardY + boardSize / 2 - size / 2;
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      ctx.drawImage(badgeImage, x, y, size, size);
+      ctx.globalAlpha = 0.11 + Math.sin(pulse * 1.8) * 0.025;
+      ctx.strokeStyle = "#fff4c8";
+      ctx.lineWidth = Math.max(3, tile * 0.1);
+      ctx.beginPath();
+      ctx.arc(boardX + boardSize / 2, boardY + boardSize / 2, size * 0.46, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     function drawTiles() {
@@ -1602,7 +1625,13 @@
         }
         ctx.closePath();
       } else if (id === "beer") {
-        roundRect(x + w * 0.2, y + h * 0.06, w * 0.6, h * 0.88, 9);
+        ctx.moveTo(cx, y + pad);
+        ctx.lineTo(x + w - pad, y + h * 0.22);
+        ctx.lineTo(x + w - pad, y + h * 0.78);
+        ctx.lineTo(cx, y + h - pad);
+        ctx.lineTo(x + pad, y + h * 0.78);
+        ctx.lineTo(x + pad, y + h * 0.22);
+        ctx.closePath();
       } else if (id === "shrimp") {
         ctx.moveTo(cx, y + pad);
         ctx.lineTo(x + w - pad, cy);
@@ -1641,14 +1670,20 @@
 
       const tokenColor = isLogo ? LOGO_TYPE.glow : piece.type.token || piece.type.color;
       const plateGrad = ctx.createRadialGradient(-r * 0.3, -r * 0.42, r * 0.1, 0, r * 0.08, r * 1.08);
-      plateGrad.addColorStop(0, piece.type.id === "beer" ? "rgba(255,255,255,0.98)" : rgba(tokenColor, 0.9));
-      plateGrad.addColorStop(0.55, piece.type.id === "beer" ? "rgba(255,255,255,0.8)" : rgba(tokenColor, 0.48));
-      plateGrad.addColorStop(1, piece.type.id === "beer" ? "rgba(224,238,255,0.52)" : rgba(piece.type.accent || tokenColor, 0.36));
+      const plateTop = piece.type.id === "burger" ? 0.46 : 0.78;
+      const plateMid = piece.type.id === "burger" ? 0.2 : 0.42;
+      const plateEdge = piece.type.id === "burger" ? 0.16 : 0.3;
+      plateGrad.addColorStop(0, piece.type.id === "beer" ? "rgba(255,255,255,0.98)" : rgba(tokenColor, plateTop));
+      plateGrad.addColorStop(0.55, piece.type.id === "beer" ? "rgba(255,255,255,0.8)" : rgba(tokenColor, plateMid));
+      plateGrad.addColorStop(1, piece.type.id === "beer" ? "rgba(224,238,255,0.52)" : rgba(piece.type.accent || tokenColor, plateEdge));
       ctx.fillStyle = plateGrad;
       drawTokenPlatePath(piece.type.id, r);
       ctx.fill();
       ctx.strokeStyle = piece.type.id === "beer" ? "rgba(255,255,255,0.86)" : rgba(tokenColor, 0.88);
       ctx.lineWidth = Math.max(2, r * 0.062);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,217,255,0.26)";
+      ctx.lineWidth = Math.max(1, r * 0.035);
       ctx.stroke();
 
       ctx.save();
@@ -1686,7 +1721,13 @@
         }
         ctx.closePath();
       } else if (id === "beer") {
-        roundRect(-r * 0.52, -r * 0.78, r * 1.04, r * 1.56, r * 0.22);
+        ctx.moveTo(0, -r * 0.86);
+        ctx.lineTo(r * 0.82, -r * 0.46);
+        ctx.lineTo(r * 0.82, r * 0.5);
+        ctx.lineTo(0, r * 0.9);
+        ctx.lineTo(-r * 0.82, r * 0.5);
+        ctx.lineTo(-r * 0.82, -r * 0.46);
+        ctx.closePath();
       } else if (id === "shrimp") {
         ctx.moveTo(0, -r * 0.88);
         ctx.lineTo(r * 0.88, r * 0.02);
