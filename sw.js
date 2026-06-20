@@ -1,4 +1,4 @@
-const CACHE_NAME = "our-moms-crush-v4";
+const CACHE_NAME = "our-moms-crush-v5";
 
 const CORE_ASSETS = [
   "./",
@@ -12,7 +12,8 @@ const CORE_ASSETS = [
   "./assets/icons/icon-512.png",
   "./assets/music/chowder.mp3",
   "./assets/music/play-me-like-that-video-game.mp3",
-  "./assets/music/powerhouse-1984.mp3"
+  "./assets/music/powerhouse-1984.mp3",
+  "./assets/sfx/game-over-voice.mp3"
 ];
 
 self.addEventListener("install", event => {

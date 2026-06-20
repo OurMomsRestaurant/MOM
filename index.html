@@ -528,6 +528,10 @@
     const badgeImage = new Image();
     badgeImage.src = "assets/our-moms-badge-logo.png";
 
+    const gameOverVoice = new Audio("assets/sfx/game-over-voice.mp3");
+    gameOverVoice.preload = "auto";
+    gameOverVoice.volume = 0.95;
+
     const emojiSprites = new Map();
     let dpr = 1;
     let width = 0;
@@ -760,6 +764,15 @@
       setMusicSection(section, 900);
     }
 
+    function startEndMusic(section = "normal") {
+      if (!soundOn) return;
+      setupMusicTracks();
+      currentMusicSection = section;
+      previousMusicSection = null;
+      musicHoldUntil = 0;
+      crossfadeMusic(section, 700);
+    }
+
     function stopThemeMusic() {
       if (!musicTracks) return;
       fadeAllMusic(450);
@@ -864,6 +877,12 @@
           musicFadeTimer = null;
         }
       }, 40);
+    }
+
+    function playGameOverVoice() {
+      if (!soundOn) return;
+      gameOverVoice.currentTime = 0;
+      gameOverVoice.play().catch(() => {});
     }
 
     function playSound(type) {
@@ -984,7 +1003,7 @@
       playSound("swap");
     }
 
-    function finishGame(title) {
+    function finishGame(title, mood = "standard") {
       running = false;
       paused = false;
       resolving = false;
@@ -993,8 +1012,14 @@
       startScreen.hidden = true;
       pauseScreen.hidden = true;
       gameOverScreen.hidden = false;
-      stopThemeMusic();
-      playSound(title === "Rush Complete" ? "level" : "over");
+      if (mood === "timeout") {
+        startEndMusic("normal");
+        playSound("level");
+        window.setTimeout(playGameOverVoice, 160);
+      } else {
+        stopThemeMusic();
+        playSound(title === "Rush Complete" ? "level" : "over");
+      }
     }
 
     function stopBrowserPan(event) {
@@ -1452,7 +1477,7 @@
         if (timeLeft <= 0) {
           timeLeft = 0;
           updateHud();
-          finishGame("Rush Over");
+          finishGame("Game Over", "timeout");
         }
       }
 
