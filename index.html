@@ -33,6 +33,7 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
+      overscroll-behavior: none;
       background:
         radial-gradient(circle at 14% 10%, rgba(255, 200, 61, 0.28), transparent 28%),
         radial-gradient(circle at 86% 18%, rgba(67, 194, 232, 0.24), transparent 30%),
@@ -56,6 +57,7 @@
       min-height: 580px;
       max-height: 960px;
       overflow: hidden;
+      touch-action: none;
       background:
         linear-gradient(180deg, rgba(255, 250, 240, 0.97), rgba(255, 232, 164, 0.96)),
         repeating-linear-gradient(90deg, #fff6df 0 22px, #ffe8ad 22px 44px);
@@ -221,6 +223,7 @@
       position: relative;
       min-height: 0;
       overflow: hidden;
+      touch-action: none;
       background:
         linear-gradient(180deg, rgba(67, 194, 232, 0.22), rgba(255, 250, 240, 0) 42%),
         linear-gradient(180deg, #fffaf0 0%, #ffe39d 100%);
@@ -231,6 +234,8 @@
       width: 100%;
       height: 100%;
       user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
     }
 
     .game-message {
@@ -983,8 +988,32 @@
       playSound(title === "Rush Complete" ? "level" : "over");
     }
 
+    function stopBrowserPan(event) {
+      if (event.cancelable) event.preventDefault();
+    }
+
+    function captureBoardPointer(event) {
+      try {
+        canvas.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Some mobile browsers drop capture if the pointer is already ending.
+      }
+    }
+
+    function releaseBoardPointer(event) {
+      try {
+        if (canvas.hasPointerCapture?.(event.pointerId)) {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // Safe no-op for browsers that end capture before pointerup/cancel.
+      }
+    }
+
     function handlePointerDown(event) {
+      stopBrowserPan(event);
       if (!running || paused || resolving) return;
+      captureBoardPointer(event);
       const p = pointerPoint(event);
       const cell = cellFromPoint(p.x, p.y);
       if (!cell) return;
@@ -994,6 +1023,7 @@
     }
 
     function handlePointerMove(event) {
+      stopBrowserPan(event);
       if (!selected || !running || paused || resolving) return;
       const p = pointerPoint(event);
       const cell = cellFromPoint(p.x, p.y);
@@ -1004,6 +1034,8 @@
     }
 
     function handlePointerUp(event) {
+      stopBrowserPan(event);
+      releaseBoardPointer(event);
       if (!running || paused || resolving) {
         selected = null;
         return;
@@ -1013,6 +1045,12 @@
       if (selected && cell && !sameCell(selected, cell) && areAdjacent(selected, cell)) {
         attemptSwap(selected, cell);
       }
+      selected = null;
+    }
+
+    function handlePointerCancel(event) {
+      stopBrowserPan(event);
+      releaseBoardPointer(event);
       selected = null;
     }
 
@@ -2302,10 +2340,11 @@
       }
     }, { once: true });
 
-    canvas.addEventListener("pointerdown", handlePointerDown);
-    canvas.addEventListener("pointermove", handlePointerMove);
-    canvas.addEventListener("pointerup", handlePointerUp);
-    canvas.addEventListener("pointercancel", () => { selected = null; });
+    canvas.addEventListener("pointerdown", handlePointerDown, { passive: false });
+    canvas.addEventListener("pointermove", handlePointerMove, { passive: false });
+    canvas.addEventListener("pointerup", handlePointerUp, { passive: false });
+    canvas.addEventListener("pointercancel", handlePointerCancel, { passive: false });
+    canvas.addEventListener("touchmove", stopBrowserPan, { passive: false });
     window.addEventListener("resize", resize);
 
     resize();
