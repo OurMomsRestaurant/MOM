@@ -495,6 +495,7 @@
       "assets/music/tiger-tracks-lexica.mp3",
       "assets/music/gaining-season-lupus-nocte.mp3"
     ];
+    const SFX_MASTER_VOLUME = 1.45;
 
     const foodImages = new Map();
     const emojiSprites = new Map();
@@ -538,6 +539,7 @@
     let audioContext = null;
     let musicPlayer = null;
     let musicTrackIndex = Math.floor(Math.random() * MUSIC_TRACKS.length);
+    let dangerWarningActive = false;
     let lastTime = 0;
     let messageTimer = 0;
 
@@ -616,6 +618,7 @@
       score = 0;
       shots = 0;
       missesSincePressure = 0;
+      dangerWarningActive = false;
       running = true;
       paused = false;
       gameOver = false;
@@ -669,7 +672,7 @@
       if (musicPlayer) return musicPlayer;
       musicPlayer = new Audio();
       musicPlayer.preload = "auto";
-      musicPlayer.volume = 0.34;
+      musicPlayer.volume = 0.24;
       musicPlayer.addEventListener("ended", () => {
         musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length;
         musicPlayer.src = MUSIC_TRACKS[musicTrackIndex];
@@ -696,8 +699,9 @@
       osc.type = options.type || "sine";
       osc.frequency.setValueAtTime(frequency, now);
       if (options.to) osc.frequency.exponentialRampToValueAtTime(options.to, now + duration);
+      const volume = (options.volume || 0.08) * SFX_MASTER_VOLUME;
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(options.volume || 0.08, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
       osc.connect(gain);
       gain.connect(audio.destination);
@@ -720,7 +724,7 @@
       source.buffer = buffer;
       filter.type = options.filter || "bandpass";
       filter.frequency.setValueAtTime(options.frequency || 820, now);
-      gain.gain.setValueAtTime(options.volume || 0.05, now);
+      gain.gain.setValueAtTime((options.volume || 0.05) * SFX_MASTER_VOLUME, now);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
       source.connect(filter);
       filter.connect(gain);
@@ -735,31 +739,53 @@
       if (!audio) return;
 
       if (type === "shoot") {
-        playNoise(audio, 0.08, { frequency: 1200, volume: 0.035 });
-        playTone(audio, 260, 0.07, { type: "triangle", to: 620, volume: 0.09 });
+        playNoise(audio, 0.08, { frequency: 1500, volume: 0.045 });
+        playTone(audio, 240, 0.08, { type: "triangle", to: 690, volume: 0.115 });
+      } else if (type === "aim") {
+        playTone(audio, 340, 0.04, { type: "triangle", to: 420, volume: 0.038 });
       } else if (type === "bounce") {
-        playTone(audio, 540, 0.05, { type: "square", to: 360, volume: 0.045 });
+        playTone(audio, 560, 0.045, { type: "square", to: 390, volume: 0.055 });
+      } else if (type === "stick") {
+        playTone(audio, 300, 0.055, { type: "triangle", to: 245, volume: 0.07 });
+        playNoise(audio, 0.055, { frequency: 620, volume: 0.026 });
+      } else if (type === "nomatch") {
+        playTone(audio, 230, 0.07, { type: "triangle", to: 190, volume: 0.055 });
+      } else if (type === "score") {
+        [980, 1240].forEach((note, index) => playTone(audio, note, 0.075, { delay: 0.06 + index * 0.045, volume: 0.06 }));
+      } else if (type === "drop") {
+        playTone(audio, 520, 0.08, { type: "triangle", to: 260, volume: 0.06 });
+        playNoise(audio, 0.16, { frequency: 760, volume: 0.035 });
       } else if (type === "clear") {
-        [620, 780, 980].forEach((note, index) => playTone(audio, note, 0.09, { delay: index * 0.035, volume: 0.07 }));
-        playNoise(audio, 0.1, { delay: 0.02, frequency: 1800, volume: 0.025 });
+        [640, 820, 1040].forEach((note, index) => playTone(audio, note, 0.09, { delay: index * 0.035, volume: 0.085 }));
+        playNoise(audio, 0.1, { delay: 0.02, frequency: 1900, volume: 0.03 });
       } else if (type === "bigclear") {
-        [520, 680, 860, 1120, 1360].forEach((note, index) => playTone(audio, note, 0.12, { delay: index * 0.04, volume: 0.085 }));
-        playNoise(audio, 0.18, { frequency: 2200, volume: 0.04 });
+        [520, 700, 900, 1160, 1440].forEach((note, index) => playTone(audio, note, 0.12, { delay: index * 0.04, volume: 0.105 }));
+        playNoise(audio, 0.18, { frequency: 2300, volume: 0.05 });
       } else if (type === "warning") {
-        playTone(audio, 260, 0.08, { type: "sawtooth", volume: 0.055 });
-        playTone(audio, 220, 0.08, { delay: 0.12, type: "sawtooth", volume: 0.055 });
+        playTone(audio, 300, 0.08, { type: "sawtooth", volume: 0.07 });
+        playTone(audio, 245, 0.08, { delay: 0.12, type: "sawtooth", volume: 0.07 });
+      } else if (type === "danger") {
+        playTone(audio, 460, 0.09, { type: "triangle", volume: 0.07 });
+        playTone(audio, 360, 0.1, { delay: 0.13, type: "triangle", volume: 0.07 });
       } else if (type === "pressure") {
-        playNoise(audio, 0.22, { frequency: 420, volume: 0.055 });
-        playTone(audio, 170, 0.2, { type: "sawtooth", to: 105, volume: 0.06 });
+        playNoise(audio, 0.22, { frequency: 420, volume: 0.07 });
+        playTone(audio, 190, 0.2, { type: "sawtooth", to: 115, volume: 0.075 });
       } else if (type === "start") {
-        [420, 560, 720].forEach((note, index) => playTone(audio, note, 0.08, { delay: index * 0.045, type: "triangle", volume: 0.055 }));
+        [420, 560, 760].forEach((note, index) => playTone(audio, note, 0.08, { delay: index * 0.045, type: "triangle", volume: 0.07 }));
+      } else if (type === "pause") {
+        playTone(audio, 360, 0.055, { type: "triangle", to: 260, volume: 0.055 });
+      } else if (type === "resume") {
+        playTone(audio, 420, 0.055, { type: "triangle", to: 620, volume: 0.06 });
+      } else if (type === "restart") {
+        playNoise(audio, 0.12, { frequency: 1300, volume: 0.035 });
+        playTone(audio, 620, 0.1, { type: "triangle", to: 360, volume: 0.065 });
       } else if (type === "win") {
-        [640, 820, 1040, 1280].forEach((note, index) => playTone(audio, note, 0.18, { delay: index * 0.08, volume: 0.08 }));
+        [640, 820, 1040, 1280].forEach((note, index) => playTone(audio, note, 0.18, { delay: index * 0.08, volume: 0.1 }));
       } else if (type === "gameover") {
-        playTone(audio, 180, 0.24, { type: "triangle", to: 86, volume: 0.075 });
-        playNoise(audio, 0.22, { delay: 0.05, frequency: 260, volume: 0.035 });
+        playTone(audio, 190, 0.24, { type: "triangle", to: 90, volume: 0.09 });
+        playNoise(audio, 0.22, { delay: 0.05, frequency: 260, volume: 0.045 });
       } else {
-        playTone(audio, 480, 0.05, { type: "triangle", volume: 0.05 });
+        playTone(audio, 520, 0.05, { type: "triangle", volume: 0.06 });
       }
     }
 
@@ -773,7 +799,7 @@
       lastTime = performance.now();
       if (paused) pauseMusic();
       else playMusic();
-      playSound("button");
+      playSound(paused ? "pause" : "resume");
     }
 
     function finishGame(title) {
@@ -873,6 +899,7 @@
 
       grid[target.row][target.col] = projectile.food;
       projectile = null;
+      playSound("stick");
 
       const cleared = clearMatches(target.row, target.col);
       const dropped = dropFloatingPieces();
@@ -882,13 +909,16 @@
         missesSincePressure = 0;
         showMessage(cleared >= 5 ? "Big Blast!" : "Yum!");
         playSound(cleared >= 5 ? "bigclear" : "clear");
+        playSound("score");
+        if (dropped > 0) playSound("drop");
       } else {
         missesSincePressure++;
+        playSound("nomatch");
         if (missesSincePressure >= 5) {
-        missesSincePressure = 0;
-        addPressureRow();
-        showMessage("New row!");
-        playSound("pressure");
+          missesSincePressure = 0;
+          addPressureRow();
+          showMessage("New row!");
+          playSound("pressure");
         } else if (missesSincePressure === 4) {
           showMessage("More orders soon!");
           playSound("warning");
@@ -1014,17 +1044,27 @@
 
     function checkEndState() {
       let hasPiece = false;
+      let dangerClose = false;
       for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < validColsForRow(row); col++) {
           const piece = grid[row][col];
           if (!piece) continue;
           hasPiece = true;
           const center = cellCenter(row, col);
+          if (center.y + radius * 1.2 >= shooter.y - radius * 4.1) dangerClose = true;
           if (center.y + radius * 1.2 >= shooter.y - radius * 1.6) {
             finishGame("Game Over");
             return;
           }
         }
+      }
+
+      if (dangerClose && !dangerWarningActive) {
+        dangerWarningActive = true;
+        showMessage("Careful!");
+        playSound("danger");
+      } else if (!dangerClose) {
+        dangerWarningActive = false;
       }
 
       if (!hasPiece) {
@@ -1545,6 +1585,7 @@
       canvas.setPointerCapture(event.pointerId);
       isAiming = true;
       updateAimFromPoint(screenToCanvasPoint(event));
+      playSound("aim");
     });
 
     canvas.addEventListener("pointermove", (event) => {
@@ -1564,9 +1605,18 @@
     });
 
     playButton.addEventListener("click", startNewGame);
-    restartButton.addEventListener("click", startNewGame);
-    pauseRestartButton.addEventListener("click", startNewGame);
-    gameOverRestartButton.addEventListener("click", startNewGame);
+    restartButton.addEventListener("click", () => {
+      playSound("restart");
+      startNewGame();
+    });
+    pauseRestartButton.addEventListener("click", () => {
+      playSound("restart");
+      startNewGame();
+    });
+    gameOverRestartButton.addEventListener("click", () => {
+      playSound("restart");
+      startNewGame();
+    });
     resumeButton.addEventListener("click", () => setPaused(false));
     pauseButton.addEventListener("click", () => {
       if (!running) return;
