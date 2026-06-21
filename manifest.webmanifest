@@ -1,15 +1,14 @@
 {
-  "name": "Our Mom's Crush",
-  "short_name": "Mom Crush",
-  "description": "Our Mom's Restaurant & Bar match-3 game.",
+  "name": "Burger Blast",
+  "short_name": "Burger Blast",
+  "description": "A kid-safe Our Mom's Restaurant bubble-shooter style browser game.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "fullscreen"],
   "orientation": "portrait",
-  "background_color": "#d21f2b",
-  "theme_color": "#d21f2b",
+  "background_color": "#fff8e8",
+  "theme_color": "#ffce3d",
   "categories": ["games", "food", "entertainment"],
   "icons": [
     {
