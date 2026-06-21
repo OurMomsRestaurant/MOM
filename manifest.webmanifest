@@ -1,7 +1,7 @@
 {
-  "name": "Burger Blast",
-  "short_name": "Burger Blast",
-  "description": "A kid-safe Our Mom's Restaurant bubble-shooter style browser game.",
+  "name": "Our Mom's Games",
+  "short_name": "Mom's Games",
+  "description": "Kid-safe Our Mom's Restaurant table games.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
