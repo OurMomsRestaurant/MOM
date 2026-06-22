@@ -384,7 +384,7 @@
         </div>
         <div class="button-row" aria-label="Game controls">
           <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game" title="Pause">⏸</button>
-          <button id="soundButton" class="icon-button" type="button" aria-label="Sound off" title="Sound off">🔇</button>
+          <button id="soundButton" class="icon-button" type="button" aria-label="Sound on" title="Sound on">🔊</button>
           <button id="restartButton" class="icon-button" type="button" aria-label="Restart game" title="Restart">↻</button>
         </div>
       </div>
@@ -495,6 +495,7 @@
       "assets/music/tiger-tracks-lexica.mp3",
       "assets/music/gaining-season-lupus-nocte.mp3"
     ];
+    const MUSIC_VOLUME = 0.13;
     const SFX_MASTER_VOLUME = 1.45;
 
     const foodImages = new Map();
@@ -535,7 +536,7 @@
     let running = false;
     let paused = false;
     let gameOver = false;
-    let soundOn = false;
+    let soundOn = true;
     let audioContext = null;
     let musicPlayer = null;
     let musicTrackIndex = Math.floor(Math.random() * MUSIC_TRACKS.length);
@@ -672,7 +673,7 @@
       if (musicPlayer) return musicPlayer;
       musicPlayer = new Audio();
       musicPlayer.preload = "auto";
-      musicPlayer.volume = 0.24;
+      musicPlayer.volume = MUSIC_VOLUME;
       musicPlayer.addEventListener("ended", () => {
         musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length;
         musicPlayer.src = MUSIC_TRACKS[musicTrackIndex];

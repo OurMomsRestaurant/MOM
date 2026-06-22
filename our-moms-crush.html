@@ -588,7 +588,6 @@
     }
 
     function startNewGame() {
-      soundOn = true;
       unlockAudio();
       score = 0;
       level = 1;
@@ -743,9 +742,9 @@
     function setupMusicTracks() {
       if (musicTracks) return musicTracks;
       musicTracks = {
-        normal: makeMusicTrack("assets/music/chowder.mp3", 0.21),
-        rush: makeMusicTrack("assets/music/powerhouse-1984.mp3", 0.26),
-        power: makeMusicTrack("assets/music/play-me-like-that-video-game.mp3", 0.25)
+        normal: makeMusicTrack("assets/music/chowder.mp3", 0.12),
+        rush: makeMusicTrack("assets/music/powerhouse-1984.mp3", 0.15),
+        power: makeMusicTrack("assets/music/play-me-like-that-video-game.mp3", 0.14)
       };
       return musicTracks;
     }
