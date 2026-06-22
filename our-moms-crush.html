@@ -136,7 +136,8 @@
       flex: 0 0 auto;
     }
 
-    button {
+    button,
+    .nav-button {
       display: inline-grid;
       place-items: center;
       min-width: 44px;
@@ -148,11 +149,13 @@
       font: inherit;
       font-weight: 900;
       line-height: 1;
+      text-decoration: none;
       box-shadow: 0 4px 0 var(--red-dark), 0 8px 16px rgba(129, 19, 25, 0.24);
       cursor: pointer;
     }
 
-    button:active {
+    button:active,
+    .nav-button:active {
       transform: translateY(3px);
       box-shadow: 0 1px 0 var(--red-dark), 0 4px 10px rgba(129, 19, 25, 0.22);
     }
@@ -426,6 +429,7 @@
           </div>
         </div>
         <div class="button-row" aria-label="Game controls">
+          <a id="menuButton" class="icon-button nav-button" href="index.html" aria-label="Back to game chooser" title="Games">⌂</a>
           <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game" title="Pause">||</button>
           <button id="soundButton" class="icon-button" type="button" aria-label="Sound on" title="Sound on">♫</button>
           <button id="restartButton" class="icon-button" type="button" aria-label="Restart game" title="Restart">↻</button>
@@ -499,6 +503,7 @@
     const finalScoreEl = document.getElementById("finalScore");
     const endTitleEl = document.getElementById("endTitle");
     const playButton = document.getElementById("playButton");
+    const menuButton = document.getElementById("menuButton");
     const pauseButton = document.getElementById("pauseButton");
     const soundButton = document.getElementById("soundButton");
     const restartButton = document.getElementById("restartButton");
@@ -778,6 +783,25 @@
       currentMusicSection = null;
       previousMusicSection = null;
       musicHoldUntil = 0;
+    }
+
+    function stopAllAudio() {
+      if (musicTracks) {
+        clearInterval(musicFadeTimer);
+        musicFadeTimer = null;
+        for (const track of Object.values(musicTracks)) {
+          track.audio.pause();
+          track.audio.volume = 0;
+        }
+      }
+      gameOverVoice.pause();
+      gameOverVoice.currentTime = 0;
+      currentMusicSection = null;
+      previousMusicSection = null;
+      musicHoldUntil = 0;
+      if (audioContext && audioContext.state === "running") {
+        audioContext.suspend().catch(() => {});
+      }
     }
 
     function setMusicSection(section, fadeMs = 1100, holdMs = 0) {
@@ -2347,6 +2371,7 @@
     }
 
     playButton.addEventListener("click", startNewGame);
+    menuButton.addEventListener("click", stopAllAudio);
     restartButton.addEventListener("click", startNewGame);
     resumeButton.addEventListener("click", () => setPaused(false));
     pauseRestartButton.addEventListener("click", startNewGame);
@@ -2379,6 +2404,11 @@
     canvas.addEventListener("pointercancel", handlePointerCancel, { passive: false });
     canvas.addEventListener("touchmove", stopBrowserPan, { passive: false });
     window.addEventListener("resize", resize);
+    window.addEventListener("pagehide", stopAllAudio);
+    window.addEventListener("beforeunload", stopAllAudio);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAllAudio();
+    });
 
     resize();
     board = makeStartingBoard();

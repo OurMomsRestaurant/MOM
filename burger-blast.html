@@ -103,7 +103,10 @@
       gap: 8px;
     }
 
-    button {
+    button,
+    .nav-button {
+      display: inline-grid;
+      place-items: center;
       min-width: 44px;
       min-height: 44px;
       border: 0;
@@ -112,11 +115,14 @@
       color: #fff;
       font: inherit;
       font-weight: 900;
+      line-height: 1;
+      text-decoration: none;
       box-shadow: 0 4px 0 #9c241f, 0 8px 16px rgba(156, 36, 31, 0.22);
       cursor: pointer;
     }
 
-    button:active {
+    button:active,
+    .nav-button:active {
       transform: translateY(3px);
       box-shadow: 0 1px 0 #9c241f, 0 4px 10px rgba(156, 36, 31, 0.2);
     }
@@ -383,6 +389,7 @@
           <h1>Burger Blast</h1>
         </div>
         <div class="button-row" aria-label="Game controls">
+          <a id="menuButton" class="icon-button nav-button" href="index.html" aria-label="Back to game chooser" title="Games">⌂</a>
           <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game" title="Pause">⏸</button>
           <button id="soundButton" class="icon-button" type="button" aria-label="Sound on" title="Sound on">🔊</button>
           <button id="restartButton" class="icon-button" type="button" aria-label="Restart game" title="Restart">↻</button>
@@ -461,6 +468,7 @@
     const finalScoreEl = document.getElementById("finalScore");
     const endTitleEl = document.getElementById("endTitle");
     const playButton = document.getElementById("playButton");
+    const menuButton = document.getElementById("menuButton");
     const pauseButton = document.getElementById("pauseButton");
     const soundButton = document.getElementById("soundButton");
     const restartButton = document.getElementById("restartButton");
@@ -691,6 +699,13 @@
 
     function pauseMusic() {
       if (musicPlayer) musicPlayer.pause();
+    }
+
+    function stopAllAudio() {
+      pauseMusic();
+      if (audioContext && audioContext.state === "running") {
+        audioContext.suspend().catch(() => {});
+      }
     }
 
     function playTone(audio, frequency, duration, options = {}) {
@@ -1606,6 +1621,7 @@
     });
 
     playButton.addEventListener("click", startNewGame);
+    menuButton.addEventListener("click", stopAllAudio);
     restartButton.addEventListener("click", () => {
       playSound("restart");
       startNewGame();
@@ -1638,10 +1654,18 @@
 
     window.addEventListener("resize", resize);
     window.addEventListener("orientationchange", () => setTimeout(resize, 160));
+    window.addEventListener("pagehide", stopAllAudio);
+    window.addEventListener("beforeunload", stopAllAudio);
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
-        pauseMusic();
-        if (running && !gameOver) setPaused(true);
+        stopAllAudio();
+        if (running && !gameOver) {
+          paused = true;
+          pauseScreen.hidden = false;
+          pauseButton.textContent = "▶";
+          pauseButton.setAttribute("aria-label", "Resume game");
+          pauseButton.title = "Resume";
+        }
       } else if (soundOn && running && !paused && !gameOver) {
         playMusic();
       }
